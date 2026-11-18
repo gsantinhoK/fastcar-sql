@@ -1,0 +1,37 @@
+# Fast Car - Sistema Financeiro em SQL
+# Sobe um PostgreSQL 16 local para executar os scripts do projeto.
+#
+#   cp .env.example .env        # ajuste a senha local
+#   docker compose up -d        # inicia o banco
+#   docker compose exec db psql -f /fastcar/sql/run_all.sql
+#
+# Os diretórios sql/ e tests/ são montados somente leitura em /fastcar.
+# PGUSER e PGDATABASE permitem rodar "psql" dentro do contêiner sem parâmetros extras.
+
+name: fastcar-financeiro
+
+services:
+  db:
+    image: postgres:16.16
+    container_name: fastcar-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-fastcar}
+      POSTGRES_USER: ${POSTGRES_USER:-fastcar_admin}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Defina POSTGRES_PASSWORD no arquivo .env (veja .env.example)}
+      PGUSER: ${POSTGRES_USER:-fastcar_admin}
+      PGDATABASE: ${POSTGRES_DB:-fastcar}
+    ports:
+      - "127.0.0.1:${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - fastcar_pgdata:/var/lib/postgresql/data
+      - ./sql:/fastcar/sql:ro
+      - ./tests:/fastcar/tests:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U \"$${POSTGRES_USER}\" -d \"$${POSTGRES_DB}\""]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  fastcar_pgdata:
