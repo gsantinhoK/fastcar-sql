@@ -1,0 +1,16 @@
+# Credenciais locais
+.env
+*.env
+!.env.example
+
+# Saídas geradas localmente
+*.log
+output/
+*.out
+
+# Sistema operacional e editores
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.swp
